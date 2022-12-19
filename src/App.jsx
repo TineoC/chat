@@ -1,20 +1,32 @@
+import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.css";
-import { Navbar, Footer } from "./components/index";
-import { Home, Error } from "./pages/index";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Error from "./pages/Error";
+import ProtectedRoute from "./pages/ProtectedRoute";
+import { AuthProvider } from "./context/AuthContext";
 
 function App() {
 	return (
-		<BrowserRouter>
-			<Navbar />
-
-			<Routes>
-				<Route path='/' element={<Home />} />
-				<Route path='*' element={<Error />} />
-			</Routes>
-
-			<Footer name='Your name' year='2022' />
-		</BrowserRouter>
+		<AuthProvider>
+			<BrowserRouter>
+				<Routes>
+					<Route
+						path='/'
+						element={
+							<ProtectedRoute>
+								<Home />
+							</ProtectedRoute>
+						}
+					/>
+					<Route path='/login' element={<Login />} />
+					<Route path='/register' element={<Register />} />
+					<Route path='*' element={<Error />} />
+				</Routes>
+			</BrowserRouter>{" "}
+		</AuthProvider>
 	);
 }
 
