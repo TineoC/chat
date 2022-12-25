@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import Error from "../components/Error";
+import UsersSocket from "../../socket/users";
 
 const Login = () => {
 	const [error, setError] = useState("");
@@ -33,7 +34,6 @@ const Login = () => {
 				const result = await response.json(); //Read User info
 
 				setCurrentUser(result); // Share user info in AuthContext
-
 				setError("");
 				navigate("/");
 			} else if (response.status === 403) {
@@ -49,38 +49,42 @@ const Login = () => {
 	return (
 		<main className='h-screen flex items-center justify-center bg-gray-100'>
 			<form
-				className='flex flex-col bg-gray-200 w-1/3 text-sm'
+				className='flex flex-col bg-gray-200 w-5/6 rounded p-2'
 				onSubmit={handleSubmit(onSubmit)}
 			>
-				<h1 className='text-lg font-bold mx-auto'>Login</h1>
+				<h1 className='text-2xl font-bold mx-auto mb-4'>Sign In</h1>
 
-				<input
-					className='mb-2'
-					type='text'
-					placeholder='Type your document...'
-					{...register("document")}
-					required
-				/>
+				<div className='mx-2'>
+					<input
+						className='w-full mb-4 p-2'
+						type='text'
+						placeholder='Type your document...'
+						{...register("document")}
+						required
+					/>
 
-				<input
-					className='mb-2'
-					type='password'
-					placeholder='Type your password...'
-					{...register("password")}
-					required
-				/>
+					<input
+						className='w-full mb-4 p-2'
+						type='password'
+						placeholder='Type your password...'
+						{...register("password")}
+						required
+					/>
 
-				{error && <Error text={error} />}
+					{error && <Error text={error} />}
 
-				<span className='text-xs'>
-					<Link className='text-blue-800' to='/register' replace>
-						Not already registered?
-					</Link>
-				</span>
-
-				<button className='bg-green-500 text-white' type='submit'>
-					Login
-				</button>
+					<div className='text-md'>
+						<Link className='text-blue-800' to='/register' replace>
+							Not already registered?
+						</Link>
+					</div>
+					<button
+						className='bg-green-500 text-white font-bold text-xl w-full my-2 p-2 rounded-sm'
+						type='submit'
+					>
+						Login
+					</button>
+				</div>
 			</form>
 		</main>
 	);

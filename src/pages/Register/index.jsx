@@ -11,7 +11,7 @@ const Register = () => {
 	const [success, setSucess] = useState(false);
 
 	const onSubmit = async (data) => {
-		const URL = "http://localhost:3000/users";
+		const URL = "http://localhost:3000/auth/register";
 
 		const options = {
 			method: "POST",
@@ -43,65 +43,72 @@ const Register = () => {
 	return (
 		<main className='h-screen flex items-center justify-center bg-gray-100'>
 			<form
-				className='flex flex-col bg-gray-200 w-1/3 text-sm'
+				className='flex flex-col bg-gray-200 w-5/6 rounded py-2'
 				onSubmit={handleSubmit(onSubmit)}
 			>
-				<h1 className='text-lg font-bold mx-auto'>Register</h1>
-				<input
-					type='text'
-					className='mb-2'
-					placeholder='Type your dominican cedula...'
-					{...register("document")}
-					required
-				/>
-				<input
-					type='text'
-					className='mb-2'
-					placeholder='Type your names...'
-					{...register("names")}
-					required
-				/>
-				<input
-					type='text'
-					className='mb-4'
-					placeholder='Type your surnames...'
-					{...register("surnames")}
-					required
-				/>
-				<input
-					type='email'
-					className='mb-2'
-					placeholder='Type your email...'
-					{...register("email")}
-				/>
-				<input
-					type='email'
-					className='mb-4'
-					placeholder='Confirm your email...'
-					{...register("email")}
-				/>
-				<input
-					type='password'
-					className='mb-2'
-					placeholder='Type your password...'
-					{...register("password")}
-					required
-				/>
-				<input
-					type='password'
-					className='mb-2'
-					placeholder='Confirm your password...'
-					{...register("confirm-password")}
-					required
-				/>
-				{error && <Error text={error} />}
-				{success && <Success text={"User created"} />}
-				<span className='text-xs'>
-					<Link className='text-blue-800' to='/login' replace>
-						Have already an account?
-					</Link>
-				</span>
-				<button className='bg-green-500 text-white' type='submit'>
+				<h1 className='text-2xl font-bold mx-auto mb-4'>Register</h1>
+				<div className='mx-2'>
+					<input
+						type='text'
+						className='w-full mb-2'
+						placeholder='Type your dominican cedula...'
+						{...register("document")}
+						required
+					/>
+					<input
+						type='text'
+						className='w-full mb-2'
+						placeholder='Type your names...'
+						{...register("names")}
+						required
+					/>
+					<input
+						type='text'
+						className='w-full mb-4'
+						placeholder='Type your surnames...'
+						{...register("surnames")}
+						required
+					/>
+					<input
+						type='email'
+						className='w-full mb-2'
+						placeholder='Type your email...'
+						{...register("email")}
+					/>
+					<input
+						type='email'
+						className='w-full mb-4'
+						placeholder='Confirm your email...'
+						{...register("email")}
+					/>
+					<input
+						type='password'
+						className='w-full mb-2'
+						placeholder='Type your password...'
+						{...register("password")}
+						required
+					/>
+					<input
+						type='password'
+						className='w-full mb-2'
+						placeholder='Confirm your password...'
+						{...register("confirm-password")}
+						required
+					/>
+
+					{error && <Error text={error} />}
+					{success && <Success text={"User created"} />}
+
+					<div className='text-md'>
+						<Link className='text-blue-800' to='/login' replace>
+							Have already an account?
+						</Link>
+					</div>
+				</div>
+				<button
+					className='bg-green-500 text-white font-bold'
+					type='submit'
+				>
 					Register
 				</button>{" "}
 			</form>
