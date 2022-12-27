@@ -16,7 +16,7 @@ const User = ({ user }) => {
 
 	const [error, setError] = useState("");
 
-	const { friendsList, setFriendsList } = useContext(FriendsContext);
+	const { setFriends } = useContext(FriendsContext);
 
 	const handleOnClick = () => {
 		console.log("on click");
@@ -28,7 +28,7 @@ const User = ({ user }) => {
 			}
 
 			console.log("you have added a friend");
-			setFriendsList((oldList) => [user, ...oldList]);
+			setFriends((oldList) => [user, ...oldList]);
 
 			setError("");
 			setShowModal(false);
