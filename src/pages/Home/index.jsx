@@ -14,21 +14,21 @@ const Home = () => {
             <AddContactsProvider>
                 <ChatProvider>
                     <FriendsProvider>
-                        <Header />
-
-                        <h1 className="text-2xl font-bold">Chats</h1>
-
-                        <input
-                            className="bg-gray-100 p-2 rounded-md"
-                            onChange={(e) => setSearchFriend(e.target.value)}
-                            value={searchFriend}
-                            type="text"
-                            placeholder="Search your chats..."
-                        />
-
-                        <Chat />
-
-                        <Chats search={searchFriend} />
+                        <MessagesProvider>
+                            <Header />
+                            <h1 className="text-2xl font-bold">Chats</h1>
+                            <input
+                                className="bg-gray-100 p-2 rounded-md"
+                                onChange={(e) =>
+                                    setSearchFriend(e.target.value)
+                                }
+                                value={searchFriend}
+                                type="text"
+                                placeholder="Search your chats..."
+                            />
+                            <Chat />
+                            <Chats search={searchFriend} />{' '}
+                        </MessagesProvider>
                     </FriendsProvider>
                 </ChatProvider>
             </AddContactsProvider>
