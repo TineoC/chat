@@ -1,42 +1,17 @@
 import React, { useContext } from 'react'
 import { FriendsContext } from '../../../../context/FriendsContext'
-import UsersSocket from '../../../../socket/users'
-import { useEffect } from 'react'
 import { ChatContext } from '../../../../context/ChatContext'
 import { useMemo } from 'react'
 import { filterArray } from '../../../../utils/search'
 import { BiSad } from 'react-icons/bi'
+import useSocket from '../../../../hooks/useSocket'
 
 const Chats = ({ search }) => {
     const { friends, setFriends } = useContext(FriendsContext)
 
     const { dispatch } = useContext(ChatContext)
 
-    useEffect(() => {
-        UsersSocket.connect()
-
-        UsersSocket.on('friends', (friendsArray) => {
-            setFriends(friendsArray)
-        })
-
-        UsersSocket.on('connected', (status, document) => {
-            console.log(status, document)
-            setFriends((oldList) => {
-                return [...oldList].map((friend) => {
-                    if (friend.document === document) {
-                        friend.connected = status
-                    }
-                    return friend
-                })
-            })
-            console.log(friends)
-        })
-
-        return () => {
-            UsersSocket.off('friends')
-            UsersSocket.off('connected')
-        }
-    }, [UsersSocket])
+    useSocket(setFriends)
 
     const friendsList = useMemo(() => {
         return filterArray(friends, search)
