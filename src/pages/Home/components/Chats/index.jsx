@@ -16,7 +16,7 @@ import UsersSocket from '../../../../socket/users'
 
 const Chats = ({ search }) => {
     const { friends, setFriends } = useContext(FriendsContext)
-    const { messages, setMessages } = useContext(MessagesContext)
+    const { setMessages } = useContext(MessagesContext)
 
     const { dispatch } = useContext(ChatContext)
 
@@ -31,8 +31,47 @@ const Chats = ({ search }) => {
             setFriends(friendList)
         })
 
+        UsersSocket.on('dm', (payload) => {
+            setMessages((prevMsgs) => [...prevMsgs, payload])
+
+            // Set sent message as friend last message
+            setFriends((friendsList) => {
+                return [...friendsList].map((friend) => {
+                    if (friend.socketId === payload.from) {
+                        friend.lastMessage = payload.content
+                    }
+
+                    return friend
+                })
+            })
+        })
+
         UsersSocket.on('messages', (messages) => {
             setMessages(messages)
+
+            // Add last message to each friend
+            setFriends((friendsList) => {
+                return [...friendsList].map((friend) => {
+                    const chatMessages = messages.filter((msg) => {
+                        return (
+                            msg.to === friend.socketId ||
+                            msg.from === friend.socketId
+                        )
+                    })
+
+                    console.log({ chatMessages })
+
+                    if (!chatMessages) return friend
+
+                    const [lastMessage] = chatMessages.slice(-1)
+
+                    const { content: lastMessageContent } = lastMessage
+
+                    friend.lastMessage = lastMessageContent
+
+                    return friend
+                })
+            })
         })
 
         UsersSocket.on('connected', (status, document) => {
@@ -49,9 +88,9 @@ const Chats = ({ search }) => {
 
         return () => {
             UsersSocket.off('friends')
+            UsersSocket.off('dm')
             UsersSocket.off('messages')
             UsersSocket.off('connected')
-            UsersSocket.off('dm')
         }
     }, [setFriends, setMessages])
 
@@ -83,7 +122,10 @@ const Chats = ({ search }) => {
                                 11:59 PM
                             </small>
                         </div>
-                        <small className="font-thin">Last message...</small>
+
+                        <small className="font-thin text-xs">
+                            {user.lastMessage || ''}
+                        </small>
                     </div>
                 )
             })}

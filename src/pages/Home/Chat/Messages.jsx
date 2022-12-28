@@ -23,12 +23,12 @@ const Messages = () => {
 
     useEffect(() => {
         bottomDiv.current?.scrollIntoView()
-    }, [])
+    })
 
     if (messages.length === 0) return
 
     return (
-        <div className="flex flex-col gap-2 h-[80%] px-2 overflow-y-scroll scroll-smooth">
+        <div className="flex flex-col gap-2 h-[80%] px-2 box-content overflow-y-auto scroll-smooth">
             {messagesList.map((message, index) => {
                 return (
                     <Message key={`${document}.${index}`} message={message} />
