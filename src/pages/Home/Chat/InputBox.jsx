@@ -4,12 +4,15 @@ import UsersSocket from '../../../socket/users'
 import { ChatContext } from '../../../context/ChatContext'
 
 import { MessagesContext } from '../../../context/MessagesContext'
+import { FriendsContext } from '../../../context/FriendsContext'
 
 const InputBox = ({ setTyping }) => {
     const [message, setMessage] = useState('')
     const { data } = useContext(ChatContext)
 
     const { setMessages } = useContext(MessagesContext)
+
+    const { setFriends } = useContext(FriendsContext)
 
     const { socketId } = data.receiver
 
@@ -31,17 +34,6 @@ const InputBox = ({ setTyping }) => {
         return () => clearTimeout(timeout)
     }, [message])
 
-    useEffect(() => {
-        UsersSocket.on('dm', (message) => {
-            setTyping(false)
-            setMessages((prevMsgs) => [...prevMsgs, message])
-        })
-
-        return () => {
-            UsersSocket.off('dm')
-        }
-    }, [setMessages])
-
     const handleSubmit = (e) => {
         e.preventDefault()
 
@@ -50,10 +42,20 @@ const InputBox = ({ setTyping }) => {
             from: '',
             content: message,
         }
-
         UsersSocket.emit('dm', payload)
 
         setMessages((previousMessages) => [...previousMessages, payload])
+
+        // Set sent message as friend last message
+        setFriends((friendsList) => {
+            return [...friendsList].map((friend) => {
+                if (friend.socketId === payload.to) {
+                    friend.lastMessage = message
+                }
+
+                return friend
+            })
+        })
 
         setMessage('')
     }
