@@ -26,10 +26,21 @@ const InputBox = ({ setTyping }) => {
     useEffect(() => {
         const timeout = setTimeout(() => {
             UsersSocket.emit('typing', { typing: false, to: socketId })
-        }, 1000)
+        }, 5000)
 
         return () => clearTimeout(timeout)
     }, [message])
+
+    useEffect(() => {
+        UsersSocket.on('dm', (message) => {
+            setTyping(false)
+            setMessages((prevMsgs) => [...prevMsgs, message])
+        })
+
+        return () => {
+            UsersSocket.off('dm')
+        }
+    }, [setMessages])
 
     const handleSubmit = (e) => {
         e.preventDefault()

@@ -47,11 +47,6 @@ const Chats = ({ search }) => {
             })
         })
 
-        UsersSocket.on('dm', (message) => {
-            console.log(message)
-            setMessages((prevMsgs) => [message, ...prevMsgs])
-        })
-
         return () => {
             UsersSocket.off('friends')
             UsersSocket.off('messages')
