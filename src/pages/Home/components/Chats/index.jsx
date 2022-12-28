@@ -1,21 +1,59 @@
-import React, { useContext } from 'react'
+import React, { useContext, useMemo } from 'react'
+
 import { FriendsContext } from '../../../../context/FriendsContext'
 import { ChatContext } from '../../../../context/ChatContext'
-import { useMemo } from 'react'
+
 import { filterArray } from '../../../../utils/search'
+
 import { BiSad } from 'react-icons/bi'
-import useSocket from '../../../../hooks/useSocket'
+
+import Chat from '../../Chat'
+import { useEffect } from 'react'
+
+import { MessagesContext } from '../../../../context/MessagesContext'
+
+import UsersSocket from '../../../../socket/users'
 
 const Chats = ({ search }) => {
     const { friends, setFriends } = useContext(FriendsContext)
+    const { messages, setMessages } = useContext(MessagesContext)
 
     const { dispatch } = useContext(ChatContext)
 
-    useSocket(setFriends)
-
     const friendsList = useMemo(() => {
         return filterArray(friends, search)
-    }, [friends, search])
+    }, [friends])
+
+    useEffect(() => {
+        UsersSocket.connect()
+
+        UsersSocket.on('friends', (friendList) => {
+            setFriends(friendList)
+        })
+
+        UsersSocket.on('messages', (messages) => {
+            setMessages(messages)
+        })
+
+        UsersSocket.on('connected', (status, document) => {
+            setFriends((oldList) => {
+                return [...oldList].map((friend) => {
+                    if (friend.document === document) {
+                        friend.connected = status
+                    }
+
+                    return friend
+                })
+            })
+        })
+
+        return () => {
+            UsersSocket.off('friends')
+            UsersSocket.off('messages')
+            UsersSocket.off('connected')
+            UsersSocket.off('dm')
+        }
+    }, [setFriends, setMessages])
 
     return (
         <div>
@@ -48,7 +86,9 @@ const Chats = ({ search }) => {
                         <small className="font-thin">Last message...</small>
                     </div>
                 )
-            })}{' '}
+            })}
+
+            <Chat />
         </div>
     )
 }
