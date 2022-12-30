@@ -1,14 +1,11 @@
-import React, { useState, useContext } from 'react'
+import React, { useContext } from 'react'
 import { ChatContext } from '../../../context/ChatContext'
 
 import { MdOutlineArrowBackIosNew } from 'react-icons/md'
-import { FriendsContext } from '../../../context/FriendsContext'
 import InputBox from './InputBox'
 import Messages from './Messages'
 
-const Chat = () => {
-    const [friendIsTyping, setFriendIsTyping] = useState(false)
-
+const Chat = ({ typing, setTyping }) => {
     const { data, dispatch } = useContext(ChatContext)
 
     if (!data.receiver) return
@@ -35,7 +32,7 @@ const Chat = () => {
                     </span>
 
                     <div className="flex flex-col text-xs">
-                        {friendIsTyping ? (
+                        {typing ? (
                             <span className="text-blue-500">Typing...</span>
                         ) : connected ? (
                             <span className="text-green-600">Online</span>
@@ -48,7 +45,7 @@ const Chat = () => {
                 <Messages />
             </div>
 
-            <InputBox setTyping={setFriendIsTyping} />
+            <InputBox setTyping={setTyping} />
         </div>
     )
 }

@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react'
+import React, { useContext, useMemo, useState } from 'react'
 
 import { FriendsContext } from '../../../../context/FriendsContext'
 import { ChatContext } from '../../../../context/ChatContext'
@@ -20,6 +20,8 @@ const Chats = ({ search }) => {
 
     const { dispatch } = useContext(ChatContext)
 
+    const [friendIsTyping, setFriendIsTyping] = useState(false)
+
     const friendsList = useMemo(() => {
         return filterArray(friends, search)
     }, [friends])
@@ -33,6 +35,9 @@ const Chats = ({ search }) => {
 
         UsersSocket.on('dm', (payload) => {
             setMessages((prevMsgs) => [...prevMsgs, payload])
+
+            // Remove typing on received message
+            setFriendIsTyping(false)
 
             // Set sent message as friend last message
             setFriends((friendsList) => {
@@ -58,8 +63,6 @@ const Chats = ({ search }) => {
                             msg.from === friend.socketId
                         )
                     })
-
-                    console.log({ chatMessages })
 
                     if (!chatMessages) return friend
 
@@ -111,7 +114,7 @@ const Chats = ({ search }) => {
                 return (
                     <div
                         key={user.document}
-                        className="p-4 rounded-md hover:bg-gray-100 mx-auto cursor-pointer"
+                        className="p-4 rounded-md hover:bg-gray-100 mx-auto cursor-pointer text-ellipsis overflow-hidden"
                         onClick={() => {
                             dispatch({ type: 'CHANGE_USER', payload: user })
                         }}
@@ -130,7 +133,7 @@ const Chats = ({ search }) => {
                 )
             })}
 
-            <Chat />
+            <Chat typing={friendIsTyping} setTyping={setFriendIsTyping} />
         </div>
     )
 }
