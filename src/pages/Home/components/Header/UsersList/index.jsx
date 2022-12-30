@@ -3,6 +3,7 @@ import { useQuery } from 'react-query'
 import User from './User'
 import { AuthContext } from '../../../../../context/AuthContext'
 import { filterArray } from '../../../../../utils/search'
+import SERVER_URL from '../../../../../config/server'
 
 const UsersList = ({ search }) => {
     const filterName = search || ''
@@ -18,7 +19,9 @@ const UsersList = ({ search }) => {
             },
         }
 
-        const response = await fetch('http://localhost:3000/users', options)
+        const URL = `${SERVER_URL}/users`
+
+        const response = await fetch(URL, options)
 
         return response.json()
     })

@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 import { AuthContext } from '../../context/AuthContext'
 import Error from '../components/Error'
+import SERVER_URL from '../../config/server'
 
 const Login = () => {
     const [error, setError] = useState('')
@@ -15,7 +16,7 @@ const Login = () => {
     const navigate = useNavigate()
 
     const onSubmit = async (data) => {
-        const URL = 'http://localhost:3000/auth/login'
+        const URL = `${SERVER_URL}/auth/login`
 
         const options = {
             method: 'POST',

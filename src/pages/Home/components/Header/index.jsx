@@ -6,6 +6,7 @@ import { FaUserPlus } from 'react-icons/fa'
 import AddContactModal from './AddContactModal'
 import { AddContactsContext } from '../../../../context/AddContactsContext'
 import UsersSocket from '../../../../socket/users'
+import SERVER_URL from '../../../../config/server'
 
 const User = () => {
     const navigate = useNavigate()
@@ -19,7 +20,7 @@ const User = () => {
     const { names, surnames } = currentUser
 
     const handleLogout = async () => {
-        const URL = 'http://localhost:3000/auth/logout'
+        const URL = `${SERVER_URL}/auth/logout`
 
         const options = {
             method: 'POST',
