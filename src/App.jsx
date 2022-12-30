@@ -1,5 +1,5 @@
 import React from 'react'
-import { Routes, Route, HashRouter } from 'react-router-dom'
+import { Routes, Route, BrowserRouter } from 'react-router-dom'
 import './App.css'
 import Home from './pages/Home'
 import Login from './pages/Login'
@@ -11,7 +11,7 @@ import { AuthProvider } from './context/AuthContext'
 function App() {
     return (
         <AuthProvider>
-            <HashRouter>
+            <BrowserRouter>
                 <Routes>
                     <Route
                         path="/"
@@ -25,7 +25,7 @@ function App() {
                     <Route path="/register" element={<Register />} />
                     <Route path="*" element={<Error />} />
                 </Routes>
-            </HashRouter>
+            </BrowserRouter>
         </AuthProvider>
     )
 }
