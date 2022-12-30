@@ -114,7 +114,7 @@ const Chats = ({ search }) => {
                 return (
                     <div
                         key={user.document}
-                        className="p-4 rounded-md hover:bg-gray-100 mx-auto cursor-pointer text-ellipsis overflow-hidden"
+                        className="p-4 rounded-md hover:bg-gray-100 mx-auto cursor-pointer"
                         onClick={() => {
                             dispatch({ type: 'CHANGE_USER', payload: user })
                         }}
@@ -126,9 +126,9 @@ const Chats = ({ search }) => {
                             </small>
                         </div>
 
-                        <small className="font-thin text-xs">
+                        <div className="font-thin text-xs w-3/4 text-ellipsis overflow-hidden">
                             {user.lastMessage || ''}
-                        </small>
+                        </div>
                     </div>
                 )
             })}
