@@ -4,9 +4,11 @@ import { USERS_URL } from "./config";
 const UsersSocket = io(USERS_URL, {
 	autoConnect: false,
 	withCredentials: true,
-	secure: true,
+	secure: import.meta.env.VITE_SOCKET_SERVER_URL ? "true" : false,
 });
 
-console.log({ url: USERS_URL, secure: UsersSocket.secure });
+console.log({
+	secure: import.meta.env.VITE_SOCKET_SERVER_URL ? "true" : false,
+});
 
 export default UsersSocket;
