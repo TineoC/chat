@@ -7,8 +7,4 @@ const UsersSocket = io(USERS_URL, {
 	secure: import.meta.env.VITE_SOCKET_SERVER_URL ? "true" : false,
 });
 
-console.log({
-	secure: import.meta.env.VITE_SOCKET_SERVER_URL ? "true" : false,
-});
-
 export default UsersSocket;
