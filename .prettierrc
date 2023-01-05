@@ -1,5 +1,5 @@
 {
-  "importOrder": ["^components/(.*)$", "^[./]"],
+  "importOrder": ["react", "^@", "^components/(.*)$", "^[./]"],
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true
 }

@@ -3,6 +3,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 
+import { yupResolver } from "@hookform/resolvers/yup";
+
 import SERVER_URL from "../../config/server";
 import Error from "../components/Error";
 import Input from "../components/Input";
