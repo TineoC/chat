@@ -4,10 +4,15 @@ import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import Error from "../components/Error";
 import SERVER_URL from "../../config/server";
+import Input from "../components/Input";
 
 const Login = () => {
 	const [error, setError] = useState("");
-	const { register, handleSubmit } = useForm();
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+	} = useForm();
 
 	// Auth Context
 	const { setCurrentUser } = useContext(AuthContext);
@@ -55,19 +60,27 @@ const Login = () => {
 				<h1 className='text-2xl font-bold mx-auto mb-4'>Sign In</h1>
 
 				<div className='mx-2'>
-					<input
-						className='w-full mb-4 p-2'
+					<Input
 						type='text'
+						name='document'
+						errors={errors}
+						register={register}
 						placeholder='Type your document...'
-						{...register("document")}
+						validationSchema={{
+							required: "Document is required",
+						}}
 						required
 					/>
 
-					<input
-						className='w-full mb-4 p-2'
+					<Input
 						type='password'
+						name='password'
+						errors={errors}
+						register={register}
 						placeholder='Type your password...'
-						{...register("password")}
+						validationSchema={{
+							required: "Password is required",
+						}}
 						required
 					/>
 
