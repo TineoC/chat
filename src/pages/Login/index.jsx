@@ -1,10 +1,10 @@
-import React, { useState, useContext } from "react";
+import React, { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
+
+import SERVER_URL from "../../config/server";
 import { AuthContext } from "../../context/AuthContext";
 import Error from "../components/Error";
-import SERVER_URL from "../../config/server";
-import Input from "../components/Input";
 
 const Login = () => {
   const [error, setError] = useState("");
@@ -22,7 +22,6 @@ const Login = () => {
 
   const onSubmit = async (data) => {
     const URL = `${SERVER_URL}/auth/login`;
-
     const options = {
       method: "POST",
       credentials: "include",
@@ -31,13 +30,11 @@ const Login = () => {
       },
       body: JSON.stringify(data),
     };
-
     try {
       const response = await fetch(URL, options);
-
+      debugger;
       if (response.ok) {
         const result = await response.json(); //Read User info
-
         setCurrentUser(result); // Share user info in AuthContext
         setError("");
         navigate("/");
@@ -60,7 +57,7 @@ const Login = () => {
         <h1 className="text-2xl font-bold mx-auto mb-4">Sign In</h1>
 
         <div className="mx-2">
-          <Input
+          <input
             type="text"
             name="document"
             errors={errors}
@@ -72,7 +69,7 @@ const Login = () => {
             required
           />
 
-          <Input
+          <input
             type="password"
             name="password"
             errors={errors}

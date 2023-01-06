@@ -7,15 +7,18 @@ import { yupResolver } from "@hookform/resolvers/yup";
 
 import SERVER_URL from "../../config/server";
 import Error from "../components/Error";
-import Input from "../components/Input";
 import Success from "../components/Success";
+import schema from "./schema";
 
 const Register = () => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    resolver: yupResolver(schema),
+  });
+
   const [error, setError] = useState();
   const [success, setSucess] = useState(false);
 
@@ -57,54 +60,7 @@ const Register = () => {
       >
         <h1 className="text-2xl font-bold mx-auto mb-4">Register</h1>
         <div className="mx-4">
-          <Input
-            type="text"
-            name="document"
-            register={register}
-            placeholder="Type your dominican cedula..."
-          />
-
-          <Input
-            type="text"
-            name="names"
-            register={register}
-            placeholder="Type your names..."
-          />
-
-          <Input
-            type="text"
-            name="surnames"
-            register={register}
-            placeholder="Type your surnames..."
-          />
-
-          <Input
-            type="email"
-            name="email"
-            register={register}
-            placeholder="Type your email..."
-          />
-
-          <Input
-            type="email"
-            name="confirmEmail"
-            register={register}
-            placeholder="Confirm your email..."
-          />
-
-          <Input
-            type="password"
-            name="password"
-            register={register}
-            placeholder="Type your password..."
-          />
-
-          <Input
-            type="password"
-            name="confirmPassword"
-            register={register}
-            placeholder="Confirm your password..."
-          />
+          
 
           {error && <Error text={error} />}
           {success && <Success text={"User created"} />}

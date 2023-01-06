@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useContext } from "react";
-import { TbSend, TbPlus } from "react-icons/tb";
-import UsersSocket from "../../../socket/users";
-import { ChatContext } from "../../../context/ChatContext";
+import React, { useContext, useEffect, useState } from "react";
+import { TbPlus, TbSend } from "react-icons/tb";
 
-import { MessagesContext } from "../../../context/MessagesContext";
+import { ChatContext } from "../../../context/ChatContext";
 import { FriendsContext } from "../../../context/FriendsContext";
+import { MessagesContext } from "../../../context/MessagesContext";
+import UsersSocket from "../../../socket/users";
 
 const InputBox = ({ setTyping }) => {
   const [message, setMessage] = useState("");
