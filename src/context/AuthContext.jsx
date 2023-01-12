@@ -13,7 +13,7 @@ import {
 } from "firebase/database";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 
 import { auth, db, realtimeDB } from "../firebase/config";
 
@@ -25,10 +25,12 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
-      console.log("Auth state changed");
-
       setCurrentUser(user);
       setLoading(false);
+
+      if (user === undefined) return;
+
+      OnlineStatus(user);
     });
 
     return () => {
@@ -37,7 +39,6 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   async function signInWithGoogle() {
-    console.log("Logged in with google");
     const provider = new GoogleAuthProvider();
 
     const result = await signInWithPopup(auth, provider);
@@ -76,13 +77,10 @@ export const AuthProvider = ({ children }) => {
       last_changed: serverTimestamp(),
     });
 
-    console.log("Logged out");
-
     return logOut(auth);
   }
 
   function OnlineStatus(user) {
-    console.log(`Changing online status for ${user.uid}`);
     const isOfflineForDatabase = {
       state: "offline",
       last_changed: serverTimestamp(),
