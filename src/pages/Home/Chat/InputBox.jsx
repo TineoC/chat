@@ -1,18 +1,50 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { TbSend, TbPlus } from "react-icons/tb";
+import { ChatContext } from "../../../context/ChatContext";
+import { db } from "../../../firebase/config";
+import {
+	arrayUnion,
+	doc,
+	serverTimestamp,
+	Timestamp,
+	updateDoc,
+} from "firebase/firestore";
+import { v4 as uuid } from "uuid";
+import { AuthContext } from "../../../context/AuthContext";
 
 const InputBox = () => {
 	const [message, setMessage] = useState("");
 
-	const handleSubmit = (e) => {
-		setMessages((previousMessages) => [...previousMessages, payload]);
+	const { data } = useContext(ChatContext);
+	const { currentUser } = useContext(AuthContext);
 
-		// Set sent message as friend last message
+	const handleSubmit = async (e) => {
+		e.preventDefault();
 
 		setMessage("");
-	};
-	const handleChange = (e) => {
-		setMessage(e.target.value);
+
+		await updateDoc(doc(db, "chats", data.chatId), {
+			messages: arrayUnion({
+				id: uuid(),
+				message,
+				senderId: currentUser.uid,
+				date: Timestamp.now(),
+			}),
+		});
+
+		await updateDoc(doc(db, "userChats", currentUser.uid), {
+			[data.chatId + ".lastMessage"]: {
+				message,
+			},
+			[data.chatId + ".date"]: serverTimestamp(),
+		});
+
+		await updateDoc(doc(db, "userChats", data.user.uid), {
+			[data.chatId + ".lastMessage"]: {
+				message,
+			},
+			[data.chatId + ".date"]: serverTimestamp(),
+		});
 	};
 
 	return (
@@ -34,7 +66,7 @@ const InputBox = () => {
 						className=' bg-white rounded-full w-[70%] text-sm py-1 px-4'
 						placeholder='Write some message...'
 						value={message}
-						onChange={handleChange}
+						onChange={(e) => setMessage(e.target.value)}
 						required
 					/>
 

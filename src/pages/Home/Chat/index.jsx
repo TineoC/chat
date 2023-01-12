@@ -9,7 +9,7 @@ import useOnlineStatus from "../../../hooks/useOnlineStatus";
 const Chat = () => {
 	const { data, dispatch } = useContext(ChatContext);
 
-	const { displayName } = data.receiver;
+	const { displayName } = data.user;
 
 	const { lastTime, status } = useOnlineStatus();
 

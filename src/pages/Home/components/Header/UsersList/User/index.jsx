@@ -1,14 +1,22 @@
 import React, { useContext } from "react";
 import { ChatContext } from "../../../../../../context/ChatContext";
+import { AuthContext } from "../../../../../../context/AuthContext";
+
 import Avatar from "../../../Avatar";
-import { doc, getDocs, setDoc, serverTimestamp } from "firebase/firestore";
+import {
+	doc,
+	getDoc,
+	setDoc,
+	serverTimestamp,
+	updateDoc,
+} from "firebase/firestore";
 import { db } from "../../../../../../firebase/config";
-import { data } from "autoprefixer";
 
 const User = ({ user }) => {
-	const { displayName, photoURL, uid } = user;
+	const { displayName, photoURL } = user;
 
-	const { data, dispatch } = useContext(ChatContext);
+	const { dispatch } = useContext(ChatContext);
+	const { currentUser } = useContext(AuthContext);
 
 	const handleOnClick = async () => {
 		dispatch({ type: "CHANGE_USER", payload: user });
@@ -16,34 +24,38 @@ const User = ({ user }) => {
 		// Create chat in firestore
 
 		const combinedId =
-			currentUser.uid > data.receiver.uid
-				? currentUser.uid + data.receiver.uid
-				: data.receiver.uid + currentUser.uid;
+			currentUser.uid > user.uid
+				? currentUser.uid + user.uid
+				: user.uid + currentUser.uid;
 
 		try {
-			const res = await getDocs(db, "chats", combinedId);
+			const res = await getDoc(doc(db, "chats", combinedId));
 
-			if (!res.exists()) {
-				await setDoc(doc(db, "chats", combinedId), { messages: [] });
+			if (res.exists()) return;
 
-				await updateDoc(doc(db, "userChats", currentUser.uid), {
-					[combinedId + ".userInfo"]: {
-						uid: data.receiver.uid,
-						displayName: data.receiver.displayName,
-						photoURL: data.receiver.photoURL,
-					},
-					[combinedId + ".date"]: serverTimestamp(),
-				});
+			await setDoc(doc(db, "chats", combinedId), { messages: [] });
 
-				await updateDoc(doc(db, "userChats", data.receiver.uid), {
-					[combinedId + ".userInfo"]: {
-						uid: currentUser.uid,
-						displayName: currentUser.displayName,
-						photoURL: currentUser.photoURL,
-					},
-					[combinedId + ".date"]: serverTimestamp(),
-				});
-			}
+			//create user chats
+
+			// Update current user with receiver data
+			await updateDoc(doc(db, "userChats", currentUser.uid), {
+				[combinedId + ".userInfo"]: {
+					uid: user.uid,
+					displayName: user.displayName,
+					photoURL: user.photoURL,
+				},
+				[combinedId + ".date"]: serverTimestamp(),
+			});
+
+			// Update receiver chat with current user data
+			await updateDoc(doc(db, "userChats", user.uid), {
+				[combinedId + ".userInfo"]: {
+					uid: currentUser.uid,
+					displayName: currentUser.displayName,
+					photoURL: currentUser.photoURL,
+				},
+				[combinedId + ".date"]: serverTimestamp(),
+			});
 		} catch (error) {
 			console.error(error);
 		}

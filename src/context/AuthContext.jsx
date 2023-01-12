@@ -21,6 +21,17 @@ export const AuthProvider = ({ children }) => {
 	const [currentUser, setCurrentUser] = useState({});
 	const [loading, setLoading] = useState(true);
 
+	useEffect(() => {
+		const unsub = onAuthStateChanged(auth, (user) => {
+			setCurrentUser(user);
+			setLoading(false);
+		});
+
+		return () => {
+			unsub();
+		};
+	}, []);
+
 	async function signInWithGoogle() {
 		const provider = new GoogleAuthProvider();
 
@@ -29,6 +40,7 @@ export const AuthProvider = ({ children }) => {
 		const user = result.user;
 
 		await saveUserInFirestore(user);
+
 		OnlineStatus();
 	}
 
@@ -87,17 +99,6 @@ export const AuthProvider = ({ children }) => {
 
 		onDisconnect(userStatusDatabaseRef).set(isOfflineForDatabase);
 	}
-
-	useEffect(() => {
-		const unsub = onAuthStateChanged(auth, (user) => {
-			setCurrentUser(user);
-			setLoading(false);
-		});
-
-		return () => {
-			unsub();
-		};
-	}, []);
 
 	const value = {
 		currentUser,

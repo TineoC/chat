@@ -1,27 +1,23 @@
 import React from "react";
 import { useContext } from "react";
 import { useDocument } from "react-firebase-hooks/firestore";
-import { AuthContext } from "../context/AuthContext";
+import { ChatContext } from "../context/ChatContext";
 import { doc } from "firebase/firestore";
 import { db } from "../firebase/config";
 
-const useFetchChats = () => {
-	const { currentUser } = useContext(AuthContext);
+const useFetchMessages = () => {
+	const { data } = useContext(ChatContext);
 
 	const [value, loading, error, snapshot] = useDocument(
-		doc(db, "userChats", currentUser.uid),
+		doc(db, "chats", data.chatId),
 		{
 			snapshotListenOptions: { includeMetadataChanges: true },
 		}
 	);
 
-	const result = value?.data() || {};
+	const result = value?.data().messages || [];
 
-	const chats = Object.entries(result).sort((a, b) => {
-		b[1].date - a[1].date;
-	});
-
-	return chats;
+	return result;
 };
 
-export default useFetchChats;
+export default useFetchMessages;

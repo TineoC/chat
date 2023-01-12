@@ -9,7 +9,7 @@ import { ChatContext } from "../context/ChatContext";
 const useOnlineStatus = () => {
 	const { data } = useContext(ChatContext);
 
-	const { uid } = data.receiver;
+	const { uid } = data.user;
 
 	const [values, loading, error] = useListVals(
 		ref(realtimeDB, "/status/" + uid)
