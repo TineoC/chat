@@ -1,117 +1,119 @@
-import React, { createContext, useState, useEffect, useContext } from "react";
 import {
-	GoogleAuthProvider,
-	signInWithPopup,
-	onAuthStateChanged,
-	signOut as logOut,
+  GoogleAuthProvider,
+  signOut as logOut,
+  onAuthStateChanged,
+  signInWithPopup,
 } from "firebase/auth";
-import { auth, db, realtimeDB } from "../firebase/config";
-import { doc, getDoc, setDoc } from "firebase/firestore";
 import {
-	ref,
-	onValue,
-	onDisconnect,
-	set,
-	serverTimestamp,
+  onDisconnect,
+  onValue,
+  ref,
+  serverTimestamp,
+  set,
 } from "firebase/database";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+
+import React, { createContext, useContext, useEffect, useState } from "react";
+
+import { auth, db, realtimeDB } from "../firebase/config";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-	const [currentUser, setCurrentUser] = useState({});
-	const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState({});
+  const [loading, setLoading] = useState(true);
 
-	useEffect(() => {
-		const unsub = onAuthStateChanged(auth, (user) => {
-			console.log("Auth state changed");
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (user) => {
+      console.log("Auth state changed");
 
-			setCurrentUser(user);
-			setLoading(false);
-		});
+      setCurrentUser(user);
+      setLoading(false);
+    });
 
-		return () => {
-			unsub();
-		};
-	}, []);
+    return () => {
+      unsub();
+    };
+  }, []);
 
-	async function signInWithGoogle() {
-		console.log("Logged in with google");
-		const provider = new GoogleAuthProvider();
+  async function signInWithGoogle() {
+    console.log("Logged in with google");
+    const provider = new GoogleAuthProvider();
 
-		const result = await signInWithPopup(auth, provider);
+    const result = await signInWithPopup(auth, provider);
 
-		const user = result.user;
+    const user = result.user;
 
-		await saveUserInFirestore(user);
+    await saveUserInFirestore(user);
 
-		OnlineStatus(user);
-	}
+    OnlineStatus(user);
+  }
 
-	async function saveUserInFirestore(user) {
-		const { displayName, photoURL, email, uid } = user;
+  async function saveUserInFirestore(user) {
+    const { displayName, photoURL, email, uid } = user;
 
-		const docRef = doc(db, "users", uid);
+    const docRef = doc(db, "users", uid);
 
-		const docSnap = await getDoc(docRef);
+    const docSnap = await getDoc(docRef);
 
-		if (docSnap.exists()) return;
+    if (docSnap.exists()) return;
 
-		await setDoc(doc(db, "users", uid), {
-			displayName,
-			photoURL,
-			email,
-		});
+    await setDoc(doc(db, "users", uid), {
+      displayName,
+      photoURL,
+      email,
+    });
 
-		await setDoc(doc(db, "userChats", uid), {});
-	}
+    await setDoc(doc(db, "userChats", uid), {});
+  }
 
-	async function signOut() {
-		const { uid } = currentUser;
-		const userStatusDatabaseRef = ref(realtimeDB, "/status/" + uid);
+  async function signOut() {
+    const { uid } = currentUser;
+    const userStatusDatabaseRef = ref(realtimeDB, "/status/" + uid);
 
-		await set(userStatusDatabaseRef, {
-			state: "offline",
-			last_changed: serverTimestamp(),
-		});
+    await set(userStatusDatabaseRef, {
+      state: "offline",
+      last_changed: serverTimestamp(),
+    });
 
-		console.log("Logged out");
+    console.log("Logged out");
 
-		return logOut(auth);
-	}
+    return logOut(auth);
+  }
 
-	function OnlineStatus(user) {
-		console.log(`Changing online status for ${user.uid}`);
-		const isOfflineForDatabase = {
-			state: "offline",
-			last_changed: serverTimestamp(),
-		};
+  function OnlineStatus(user) {
+    console.log(`Changing online status for ${user.uid}`);
+    const isOfflineForDatabase = {
+      state: "offline",
+      last_changed: serverTimestamp(),
+    };
 
-		const isOnlineForDatabase = {
-			state: "online",
-			last_changed: serverTimestamp(),
-		};
+    const isOnlineForDatabase = {
+      state: "online",
+      last_changed: serverTimestamp(),
+    };
 
-		const userStatusDatabaseRef = ref(realtimeDB, "/status/" + user.uid);
-		const connectedRef = ref(realtimeDB, ".info/connected");
+    const userStatusDatabaseRef = ref(realtimeDB, "/status/" + user.uid);
+    const connectedRef = ref(realtimeDB, ".info/connected");
 
-		onValue(connectedRef, (snap) => {
-			if (snap.val() === true) {
-				set(userStatusDatabaseRef, isOnlineForDatabase);
-			}
-		});
+    onValue(connectedRef, (snap) => {
+      if (snap.val() === true) {
+        set(userStatusDatabaseRef, isOnlineForDatabase);
+      }
+    });
 
-		onDisconnect(userStatusDatabaseRef).set(isOfflineForDatabase);
-	}
+    onDisconnect(userStatusDatabaseRef).set(isOfflineForDatabase);
+  }
 
-	const value = {
-		currentUser,
-		signInWithGoogle,
-		signOut,
-	};
+  const value = {
+    currentUser,
+    signInWithGoogle,
+    signOut,
+  };
 
-	return (
-		<AuthContext.Provider value={value}>
-			{!loading && children}
-		</AuthContext.Provider>
-	);
+  return (
+    <AuthContext.Provider value={value}>
+      {!loading && children}
+    </AuthContext.Provider>
+  );
 };

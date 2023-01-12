@@ -1,3 +1,3 @@
 const filterByName = (arrayOfUsers, searchQuery) => {
-	return searchArray;
+  return searchArray;
 };

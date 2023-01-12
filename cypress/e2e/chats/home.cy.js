@@ -1,7 +1,7 @@
 describe("/", () => {
-	beforeEach(() => {
-		cy.viewport("iphone-6+");
+  beforeEach(() => {
+    cy.viewport("iphone-6+");
 
-		cy.visit("/login");
-	});
+    cy.visit("/login");
+  });
 });
