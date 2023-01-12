@@ -1,77 +1,59 @@
-import React, { useContext } from 'react'
-import { HiLogout } from 'react-icons/hi'
-import { useNavigate } from 'react-router-dom'
-import { AuthContext } from '../../../../context/AuthContext'
-import { FaUserPlus } from 'react-icons/fa'
-import AddContactModal from './AddContactModal'
-import { AddContactsContext } from '../../../../context/AddContactsContext'
-import UsersSocket from '../../../../socket/users'
-import SERVER_URL from '../../../../config/server'
+import React, { useContext } from "react";
+import { HiLogout } from "react-icons/hi";
+import { AuthContext } from "../../../../context/AuthContext";
+import { FaUserPlus } from "react-icons/fa";
+import AddContactModal from "./AddContactModal";
+import { AddContactsContext } from "../../../../context/AddContactsContext";
+import Avatar from "../Avatar";
 
 const User = () => {
-    const navigate = useNavigate()
+	// Add Contacts Context
+	const { setShowModal } = useContext(AddContactsContext);
 
-    // Add Contacts Context
-    const { setShowModal } = useContext(AddContactsContext)
+	// Auth Context
+	const { currentUser, signOut } = useContext(AuthContext);
 
-    // Auth Context
-    const { currentUser, setCurrentUser } = useContext(AuthContext)
+	const { displayName, photoURL } = currentUser;
 
-    const { names, surnames } = currentUser
+	const handleLogout = async () => {
+		try {
+			await signOut();
+		} catch (error) {
+			console.error(error);
+		}
+	};
 
-    const handleLogout = async () => {
-        const URL = `${SERVER_URL}/auth/logout`
+	const handleAddContact = () => {
+		setShowModal((state) => !state);
+	};
 
-        const options = {
-            method: 'POST',
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        }
+	return (
+		<div className='flex flex-row w-full items-center justify-between'>
+			<div className='flex flex-row items-center gap-4'>
+				<Avatar url={photoURL} />
 
-        try {
-            navigate('/')
+				<span className='text-lg font-medium'>{displayName}</span>
+			</div>
 
-            const response = await fetch(URL, options)
+			<div className='flex flex-row items-center gap-x-2 text-2xl'>
+				<button
+					className='p-2 hover:bg-gray-100 rounded-full text-blue-800 hover:text-blue-600'
+					onClick={handleAddContact}
+				>
+					<FaUserPlus />
+				</button>
 
-            if (response.ok) {
-                setCurrentUser(null)
+				<button
+					className='p-2 hover:bg-gray-100 rounded-full text-red-600 hover:text-red-500'
+					onClick={handleLogout}
+				>
+					<HiLogout />
+				</button>
+			</div>
 
-                UsersSocket.disconnect()
-            }
-        } catch (error) {
-            console.error(error)
-        }
-    }
+			<AddContactModal />
+		</div>
+	);
+};
 
-    const handleAddContact = () => {
-        setShowModal((state) => !state)
-    }
-
-    return (
-        <div className="flex flex-row w-full items-center justify-between">
-            <span className="text-md font-medium">{`${names} ${surnames}`}</span>
-
-            <div className="flex flex-row items-center gap-x-2 text-xl">
-                <button
-                    className="p-2 hover:bg-gray-100 rounded-full text-blue-800 hover:text-blue-600"
-                    onClick={handleAddContact}
-                >
-                    <FaUserPlus />
-                </button>
-
-                <button
-                    className="p-2 hover:bg-gray-100 rounded-full text-red-600 hover:text-red-500"
-                    onClick={handleLogout}
-                >
-                    <HiLogout />
-                </button>
-            </div>
-
-            <AddContactModal />
-        </div>
-    )
-}
-
-export default User
+export default User;

@@ -1,5 +1,9 @@
 .env
 .env.*
+# Firebase
+serviceAccount.json
+# Cypress
+cypress.env.json
 # Logs
 logs
 *.log
