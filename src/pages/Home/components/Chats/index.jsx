@@ -35,9 +35,9 @@ const Chats = () => {
             <div className="flex flex-row gap-4">
               <Avatar url={chat[1].userInfo.photoURL} />
 
-              <div className="flex flex-col w-full">
+              <div className="flex flex-col w-3/4">
                 <h3 className="text-xl">{chat[1].userInfo.displayName}</h3>
-                <span className="font-normal text-md text-slate-500 text-ellipsis overflow-hidden">
+                <span className="font-normal text-md text-slate-500 truncate">
                   {chat[1].lastMessage?.message}
                 </span>
               </div>
