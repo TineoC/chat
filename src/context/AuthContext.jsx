@@ -23,6 +23,8 @@ export const AuthProvider = ({ children }) => {
 
 	useEffect(() => {
 		const unsub = onAuthStateChanged(auth, (user) => {
+			console.log("Auth state changed");
+
 			setCurrentUser(user);
 			setLoading(false);
 		});
@@ -33,6 +35,7 @@ export const AuthProvider = ({ children }) => {
 	}, []);
 
 	async function signInWithGoogle() {
+		console.log("Logged in with google");
 		const provider = new GoogleAuthProvider();
 
 		const result = await signInWithPopup(auth, provider);
@@ -41,7 +44,7 @@ export const AuthProvider = ({ children }) => {
 
 		await saveUserInFirestore(user);
 
-		OnlineStatus();
+		OnlineStatus(user);
 	}
 
 	async function saveUserInFirestore(user) {
@@ -62,19 +65,22 @@ export const AuthProvider = ({ children }) => {
 		await setDoc(doc(db, "userChats", uid), {});
 	}
 
-	function signOut() {
+	async function signOut() {
 		const { uid } = currentUser;
 		const userStatusDatabaseRef = ref(realtimeDB, "/status/" + uid);
 
-		set(userStatusDatabaseRef, {
+		await set(userStatusDatabaseRef, {
 			state: "offline",
 			last_changed: serverTimestamp(),
 		});
 
+		console.log("Logged out");
+
 		return logOut(auth);
 	}
 
-	function OnlineStatus() {
+	function OnlineStatus(user) {
+		console.log(`Changing online status for ${user.uid}`);
 		const isOfflineForDatabase = {
 			state: "offline",
 			last_changed: serverTimestamp(),
@@ -85,10 +91,7 @@ export const AuthProvider = ({ children }) => {
 			last_changed: serverTimestamp(),
 		};
 
-		const userStatusDatabaseRef = ref(
-			realtimeDB,
-			"/status/" + currentUser.uid
-		);
+		const userStatusDatabaseRef = ref(realtimeDB, "/status/" + user.uid);
 		const connectedRef = ref(realtimeDB, ".info/connected");
 
 		onValue(connectedRef, (snap) => {
