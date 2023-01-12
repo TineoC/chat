@@ -15,7 +15,6 @@
   },
   "dependencies": {
 		"@hookform/error-message": "^2.0.1",
-		"@hookform/resolvers": "^2.9.10",
 		"firebase": "^9.15.0",
     "@hookform/resolvers": "^2.9.10",
     "flowbite-react": "^0.3.7",
@@ -30,9 +29,7 @@
     "socket.io": "^4.5.3",
     "socket.io-client": "^4.5.3",
     "tw-elements": "^1.0.0-alpha13",
-		"uuid": "^9.0.0",
-		"yup": "^0.32.11",
-    "yup": "^0.32.11"
+		"uuid": "^9.0.0"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.0.0",
