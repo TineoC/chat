@@ -25,18 +25,20 @@ const InputBox = () => {
 
     setMessage("");
 
+    const currentTimestamp = Timestamp.now();
+
     await updateDoc(doc(db, "chats", data.chatId), {
       messages: arrayUnion({
         id: uuid(),
         message,
         senderId: currentUser.uid,
-        date: Timestamp.now(),
       }),
     });
 
     await updateDoc(doc(db, "userChats", currentUser.uid), {
       [data.chatId + ".lastMessage"]: {
         message,
+        date: currentTimestamp,
       },
       [data.chatId + ".date"]: serverTimestamp(),
     });
@@ -44,6 +46,7 @@ const InputBox = () => {
     await updateDoc(doc(db, "userChats", data.user.uid), {
       [data.chatId + ".lastMessage"]: {
         message,
+        date: currentTimestamp,
       },
       [data.chatId + ".date"]: serverTimestamp(),
     });

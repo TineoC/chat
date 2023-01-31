@@ -22,12 +22,12 @@ const Chats = () => {
   };
 
   return (
-    <div>
+    <div className="py-4">
       {chats.map((chat) => {
         return (
           <div
             key={chat[0]}
-            className="p-4 rounded-md hover:bg-gray-100 mx-auto cursor-pointer"
+            className="py-2 rounded-md hover:bg-gray-100 mx-auto cursor-pointer overflow-auto"
             onClick={() => {
               handleSelect(chat[1].userInfo);
             }}

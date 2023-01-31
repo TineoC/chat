@@ -33,7 +33,7 @@ const User = () => {
       <div className="flex flex-row items-center gap-4">
         <Avatar url={photoURL} />
 
-        <span className="text-lg font-medium">{displayName}</span>
+        <span className="text-xl font-medium">{displayName}</span>
       </div>
 
       <div className="flex flex-row items-center gap-x-2 text-2xl">
