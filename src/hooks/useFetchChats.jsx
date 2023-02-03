@@ -17,7 +17,7 @@ const useFetchChats = () => {
     }
   );
 
-  if (loading) return undefined;
+  if (loading || !value) return [];
 
   const chats = Object.values(value);
 
