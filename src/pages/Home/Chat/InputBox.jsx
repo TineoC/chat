@@ -1,103 +1,89 @@
-import React, { useState, useEffect, useContext } from 'react'
-import { TbSend, TbPlus } from 'react-icons/tb'
-import UsersSocket from '../../../socket/users'
-import { ChatContext } from '../../../context/ChatContext'
+import {
+  Timestamp,
+  arrayUnion,
+  doc,
+  serverTimestamp,
+  updateDoc,
+} from "firebase/firestore";
+import { v4 as uuid } from "uuid";
 
-import { MessagesContext } from '../../../context/MessagesContext'
-import { FriendsContext } from '../../../context/FriendsContext'
+import React, { useContext, useState } from "react";
+import { TbPlus, TbSend } from "react-icons/tb";
 
-const InputBox = ({ setTyping }) => {
-    const [message, setMessage] = useState('')
-    const { data } = useContext(ChatContext)
+import { AuthContext } from "../../../context/AuthContext";
+import { ChatContext } from "../../../context/ChatContext";
+import { db } from "../../../firebase/config";
 
-    const { setMessages } = useContext(MessagesContext)
+const InputBox = () => {
+  const [message, setMessage] = useState("");
 
-    const { setFriends } = useContext(FriendsContext)
+  const { data } = useContext(ChatContext);
+  const { currentUser } = useContext(AuthContext);
 
-    const { socketId } = data.receiver
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    useEffect(() => {
-        UsersSocket.on('typing', (status) => {
-            setTyping(status)
-        })
+    setMessage("");
 
-        return () => {
-            UsersSocket.off('typing')
-        }
-    }, [setTyping])
+    await updateDoc(doc(db, "chats", data.chatId), {
+      messages: arrayUnion({
+        id: uuid(),
+        message,
+        senderId: currentUser.uid,
+        date: Timestamp.now(),
+      }),
+    });
 
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            UsersSocket.emit('typing', { typing: false, to: socketId })
-        }, 5000)
+    await updateDoc(doc(db, "userChats", currentUser.uid), {
+      [data.chatId + ".lastMessage"]: {
+        message,
+        date: serverTimestamp(),
+      },
+      [data.chatId + ".date"]: serverTimestamp(),
+    });
 
-        return () => clearTimeout(timeout)
-    }, [message])
+    await updateDoc(doc(db, "userChats", data.user.uid), {
+      [data.chatId + ".lastMessage"]: {
+        message,
+        date: serverTimestamp(),
+      },
+      [data.chatId + ".date"]: serverTimestamp(),
+    });
+  };
 
-    const handleSubmit = (e) => {
-        e.preventDefault()
+  return (
+    <div className="bg-gray-100 absolute bottom-0 w-screen py-2">
+      <div className="w-[90%] mx-auto">
+        <form
+          className="w-full flex flex-row justify-between"
+          onSubmit={handleSubmit}
+        >
+          <button
+            type="submit"
+            className="text-xl p-2 hover:bg-gray-200 rounded-full"
+          >
+            <TbPlus className=" text-blue-500 hover:text-blue-400" />
+          </button>
 
-        const payload = {
-            to: socketId,
-            from: '',
-            content: message,
-        }
-        UsersSocket.emit('dm', payload)
+          <input
+            type="text"
+            className=" bg-white rounded-full w-[70%] text-sm py-1 px-4"
+            placeholder="Write some message..."
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            required
+          />
 
-        setMessages((previousMessages) => [...previousMessages, payload])
+          <button
+            type="submit"
+            className="text-xl text-blue-500 hover:text-blue-400 p-2 hover:bg-gray-200 rounded-full"
+          >
+            <TbSend />
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
 
-        // Set sent message as friend last message
-        setFriends((friendsList) => {
-            return [...friendsList].map((friend) => {
-                if (friend.socketId === payload.to) {
-                    friend.lastMessage = message
-                }
-
-                return friend
-            })
-        })
-
-        setMessage('')
-    }
-    const handleChange = (e) => {
-        setMessage(e.target.value)
-
-        UsersSocket.emit('typing', { typing: true, to: socketId })
-    }
-
-    return (
-        <div className="bg-gray-100 absolute bottom-0 w-screen py-2">
-            <div className="w-[90%] mx-auto">
-                <form
-                    className="w-full flex flex-row justify-between"
-                    onSubmit={handleSubmit}
-                >
-                    <button
-                        type="submit"
-                        className="text-xl p-2 hover:bg-gray-200 rounded-full"
-                    >
-                        <TbPlus className=" text-blue-500 hover:text-blue-400" />
-                    </button>
-
-                    <input
-                        type="text"
-                        className=" bg-white rounded-full w-[70%] text-sm py-1 px-4"
-                        placeholder="Write some message..."
-                        value={message}
-                        onChange={handleChange}
-                        required
-                    />
-
-                    <button
-                        type="submit"
-                        className="text-xl text-blue-500 hover:text-blue-400 p-2 hover:bg-gray-200 rounded-full"
-                    >
-                        <TbSend />
-                    </button>
-                </form>
-            </div>
-        </div>
-    )
-}
-
-export default InputBox
+export default InputBox;

@@ -1,5 +1,11 @@
 .env
 .env.*
+# Firebase
+serviceAccount.json
+# Tasks
+todo.md
+# Cypress
+cypress.env.json
 # Logs
 logs
 *.log

@@ -1,55 +1,79 @@
-import React, { useContext } from 'react'
-import { ChatContext } from '../../../../../../context/ChatContext'
-import { AddContactsContext } from '../../../../../../context/AddContactsContext'
-import UsersSocket from '../../../../../../socket/users'
-import { useState } from 'react'
-import Error from '../../../../../components/Error'
+import {
+  doc,
+  getDoc,
+  serverTimestamp,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 
-import { FriendsContext } from '../../../../../../context/FriendsContext'
+import React, { useContext } from "react";
+
+import { AuthContext } from "../../../../../../context/AuthContext";
+import { ChatContext } from "../../../../../../context/ChatContext";
+import { db } from "../../../../../../firebase/config";
+import Avatar from "../../../Avatar";
 
 const User = ({ user }) => {
-    const { document, names, surnames } = user
+  const { displayName, photoURL } = user;
 
-    const { dispatch } = useContext(ChatContext)
+  const { dispatch } = useContext(ChatContext);
+  const { currentUser } = useContext(AuthContext);
 
-    const { setShowModal } = useContext(AddContactsContext)
+  const handleOnClick = async () => {
+    dispatch({ type: "CHANGE_USER", payload: user });
 
-    const [error, setError] = useState('')
+    // Create chat in firestore
 
-    const { setFriends } = useContext(FriendsContext)
+    const combinedId =
+      currentUser.uid > user.uid
+        ? currentUser.uid + user.uid
+        : user.uid + currentUser.uid;
 
-    const handleOnClick = () => {
-        UsersSocket.emit('add_friend', document, ({ errorMsg, done }) => {
-            if (!done) {
-                console.error(errorMsg)
-                return setError(errorMsg)
-            }
+    try {
+      const res = await getDoc(doc(db, "chats", combinedId));
 
-            setFriends((currentFriends) => [...currentFriends, user])
+      if (res.exists()) return;
 
-            setError('')
-            setShowModal(false)
-        })
+      await setDoc(doc(db, "chats", combinedId), { messages: [] });
 
-        dispatch({ type: 'CHANGE_USER', payload: user })
+      //create user chats
+
+      // Update current user with receiver data
+      await updateDoc(doc(db, "userChats", currentUser.uid), {
+        [combinedId + ".userInfo"]: {
+          uid: user.uid,
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+        },
+        [combinedId + ".date"]: serverTimestamp(),
+      });
+
+      // Update receiver chat with current user data
+      await updateDoc(doc(db, "userChats", user.uid), {
+        [combinedId + ".userInfo"]: {
+          uid: currentUser.uid,
+          displayName: currentUser.displayName,
+          photoURL: currentUser.photoURL,
+        },
+        [combinedId + ".date"]: serverTimestamp(),
+      });
+    } catch (error) {
+      console.error(error);
     }
+  };
 
-    return (
-        <div
-            key={user.document}
-            className="p-4 rounded-md hover:bg-gray-200 mx-auto w-[90%] cursor-pointer"
-            onClick={handleOnClick}
-        >
-            <div className="flex flex-col">
-                <h3 className="font-medium">
-                    {names} {surnames}
-                </h3>
-                <h6 className="font-light text-sm">{document}</h6>
+  return (
+    <div
+      className="p-4 rounded-md hover:bg-gray-200 mx-auto w-full cursor-pointer"
+      onClick={handleOnClick}
+    >
+      <div className="flex flex-row items-center gap-4">
+        <Avatar url={photoURL} />
 
-                {error && <Error text={error} />}
-            </div>
-        </div>
-    )
-}
+        <h3 className="font-medium text-xl">{displayName}</h3>
+      </div>
+    </div>
+  );
+};
 
-export default User
+export default User;

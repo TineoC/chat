@@ -1,141 +1,90 @@
-import React, { useContext, useMemo, useState } from 'react'
+import moment from "moment";
 
-import { FriendsContext } from '../../../../context/FriendsContext'
-import { ChatContext } from '../../../../context/ChatContext'
+import React, { useContext } from "react";
 
-import { filterArray } from '../../../../utils/search'
+import { ChatContext } from "../../../../context/ChatContext";
+import useFetchChats from "../../../../hooks/useFetchChats";
+import Chat from "../../Chat";
+import Avatar from "../../components/Avatar";
 
-import { BiSad } from 'react-icons/bi'
+const Chats = () => {
+  const { data, dispatch } = useContext(ChatContext);
 
-import Chat from '../../Chat'
-import { useEffect } from 'react'
+  const chats = useFetchChats();
 
-import { MessagesContext } from '../../../../context/MessagesContext'
-
-import UsersSocket from '../../../../socket/users'
-
-const Chats = ({ search }) => {
-    const { friends, setFriends } = useContext(FriendsContext)
-    const { setMessages } = useContext(MessagesContext)
-
-    const { dispatch } = useContext(ChatContext)
-
-    const [friendIsTyping, setFriendIsTyping] = useState(false)
-
-    const friendsList = useMemo(() => {
-        return filterArray(friends, search)
-    }, [friends])
-
-    useEffect(() => {
-        UsersSocket.connect()
-
-        UsersSocket.on('friends', (friendList) => {
-            setFriends(friendList)
-        })
-
-        UsersSocket.on('dm', (payload) => {
-            setMessages((prevMsgs) => [...prevMsgs, payload])
-
-            // Remove typing on received message
-            setFriendIsTyping(false)
-
-            // Set sent message as friend last message
-            setFriends((friendsList) => {
-                return [...friendsList].map((friend) => {
-                    if (friend.socketId === payload.from) {
-                        friend.lastMessage = payload.content
-                    }
-
-                    return friend
-                })
-            })
-        })
-
-        UsersSocket.on('messages', (messages) => {
-            setMessages(messages)
-
-            // Add last message to each friend
-            setFriends((friendsList) => {
-                return [...friendsList].map((friend) => {
-                    const chatMessages = messages.filter((msg) => {
-                        return (
-                            msg.to === friend.socketId ||
-                            msg.from === friend.socketId
-                        )
-                    })
-
-                    if (!chatMessages) return friend
-
-                    const [lastMessage] = chatMessages.slice(-1)
-
-                    const { content: lastMessageContent } = lastMessage
-
-                    friend.lastMessage = lastMessageContent
-
-                    return friend
-                })
-            })
-        })
-
-        UsersSocket.on('connected', (status, document) => {
-            setFriends((oldList) => {
-                return [...oldList].map((friend) => {
-                    if (friend.document === document) {
-                        friend.connected = status
-                    }
-
-                    return friend
-                })
-            })
-        })
-
-        return () => {
-            UsersSocket.off('friends')
-            UsersSocket.off('dm')
-            UsersSocket.off('messages')
-            UsersSocket.off('connected')
-        }
-    }, [setFriends, setMessages])
-
+  if (typeof chats === "undefined")
     return (
-        <div>
-            {friendsList.length === 0 && search !== '' && (
-                <span className="flex flex-row text-sm items-center text-slate-400 text-xs">
-                    No friend was found with that name
-                    <BiSad className="ml-2 text-xl" />
+      <span className="flex flex-row text-sm text-slate-400">
+        Add some contacts so you can chat with people...
+      </span>
+    );
+
+  const handleSelect = (user) => {
+    dispatch({ type: "CHANGE_USER", payload: user });
+  };
+
+  return (
+    <div className="mt-[10rem] w-full mx-auto">
+      {Object.values(chats).map(({ userInfo, lastMessage }) => {
+        function formatLastMessageTime(lastMessageDate) {
+          // last message was today
+          // format hh:mm
+
+          const isToday = moment(lastMessageDate).isSame(new Date(), "day");
+
+          if (isToday) {
+            //	return time
+            return moment(lastMessageDate).format("hh:mm A");
+          }
+
+          // last message was this year
+          // format dd/mm
+
+          const isThisYear = moment(lastMessageDate).isSame(new Date(), "year");
+          if (isThisYear) {
+            return moment(lastMessageDate).format("DD/MM");
+          }
+
+          // last message was not this year
+          // format dd/mm/yyyy
+          return lastMessageDate.toLocaleDateString("en-US", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          });
+        }
+
+        return (
+          <div
+            key={userInfo.uid}
+            className="py-2 rounded-md hover:bg-gray-100 cursor-pointer overflow-auto"
+            onClick={() => {
+              handleSelect(userInfo);
+            }}
+          >
+            <div className="flex flex-row gap-4 w-[90%] mx-auto">
+              <Avatar url={userInfo.photoURL} />
+
+              <div className="flex flex-col w-3/4">
+                <div className="flex flex-row items-center justify-between">
+                  <h3 className="text-xl">{userInfo.displayName}</h3>
+                  <span className="font-medium text-sm text-slate-400">
+                    {lastMessage.date &&
+                      formatLastMessageTime(lastMessage.date.toDate())}
+                  </span>
+                </div>
+                <span className="font-normal text-md text-slate-500 truncate">
+                  {lastMessage?.message}
                 </span>
-            )}
-            {friendsList.length === 0 && search === '' && (
-                <span className="flex flex-row text-sm text-slate-400 text-xs">
-                    Add some contacts so you can chat with people...
-                </span>
-            )}
-            {friendsList.map((user) => {
-                return (
-                    <div
-                        key={user.document}
-                        className="p-4 rounded-md hover:bg-gray-100 mx-auto cursor-pointer"
-                        onClick={() => {
-                            dispatch({ type: 'CHANGE_USER', payload: user })
-                        }}
-                    >
-                        <div className="flex flex-row justify-between">
-                            <h3 className="font-medium">{`${user.names} ${user.surnames}`}</h3>
-                            <small className="text-xs font-thin">
-                                11:59 PM
-                            </small>
-                        </div>
+              </div>
+            </div>
+          </div>
+        );
+      })}
 
-                        <div className="font-thin text-xs w-3/4 text-ellipsis overflow-hidden">
-                            {user.lastMessage || ''}
-                        </div>
-                    </div>
-                )
-            })}
+      {!(Object.keys(data.user).length === 0) && <Chat />}
+    </div>
+  );
+};
 
-            <Chat typing={friendIsTyping} setTyping={setFriendIsTyping} />
-        </div>
-    )
-}
-
-export default Chats
+export default Chats;

@@ -1,39 +1,22 @@
-import React, { useState } from 'react'
-import Chats from './components/Chats'
-import Header from './components/Header'
-import { AddContactsProvider } from '../../context/AddContactsContext'
+import React from "react";
 
-import { ChatProvider } from '../../context/ChatContext'
-import { FriendsProvider } from '../../context/FriendsContext'
-import { MessagesProvider } from '../../context/MessagesContext'
+import { ChatProvider } from "../../context/ChatContext";
+import { MessagesProvider } from "../../context/MessagesContext";
+import Chats from "./components/Chats";
+import Header from "./components/Header";
 
 const Home = () => {
-    const [searchFriend, setSearchFriend] = useState('')
+  return (
+    <main className="my-4 w-full mx-auto flex flex-col">
+      <ChatProvider>
+        <MessagesProvider>
+          <Header />
 
-    return (
-        <main className="my-4 w-[90%] mx-auto flex flex-col gap-y-4">
-            <AddContactsProvider>
-                <FriendsProvider>
-                    <ChatProvider>
-                        <MessagesProvider>
-                            <Header />
-                            <h1 className="text-2xl font-bold">Chats</h1>
-                            <input
-                                className="bg-gray-100 p-2 rounded-md"
-                                onChange={(e) =>
-                                    setSearchFriend(e.target.value)
-                                }
-                                value={searchFriend}
-                                type="text"
-                                placeholder="Search your chats..."
-                            />
-                            <Chats search={searchFriend} />
-                        </MessagesProvider>
-                    </ChatProvider>
-                </FriendsProvider>
-            </AddContactsProvider>
-        </main>
-    )
-}
+          <Chats />
+        </MessagesProvider>
+      </ChatProvider>
+    </main>
+  );
+};
 
-export default Home
+export default Home;
