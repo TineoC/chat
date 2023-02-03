@@ -64,7 +64,7 @@ const User = ({ user }) => {
 
   return (
     <div
-      className="p-4 rounded-md hover:bg-gray-200 mx-auto w-[90%] cursor-pointer"
+      className="p-4 rounded-md hover:bg-gray-200 mx-auto w-full cursor-pointer"
       onClick={handleOnClick}
     >
       <div className="flex flex-row items-center gap-4">

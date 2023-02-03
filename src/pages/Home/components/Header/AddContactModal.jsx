@@ -16,9 +16,9 @@ const AddContactModal = () => {
   };
 
   return (
-    <div className="z-10 h-screen absolute top-0 left-0 w-screen bg-gray-50">
-      <div className="w-full z-11 bg-gray-50 fixed flex flex-col py-4">
-        <div className="w-[90%] mx-auto">
+    <div className="z-10 fixed right-0 left-0 bg-gray-50">
+      <div className="z-2 bg-gray-50 fixed flex flex-col py-4">
+        <div className="mx-auto">
           <div className="flex flex-row justify-between items-center mb-2">
             <h1 className="font-bold text-xl text-center">Add Contact</h1>
 
@@ -31,7 +31,7 @@ const AddContactModal = () => {
           </div>
 
           <input
-            className="w-full rounded-sm p-2 bg-gray-200"
+            className="rounded-sm p-2 bg-gray-200"
             placeholder="Search someone..."
             type="search"
             value={search}
@@ -41,6 +41,7 @@ const AddContactModal = () => {
           />
         </div>
       </div>
+
       <UsersList search={search} />
     </div>
   );
