@@ -81,6 +81,8 @@ export const AuthProvider = ({ children }) => {
   }
 
   function OnlineStatus(user) {
+    if (!user) return;
+
     const isOfflineForDatabase = {
       state: "offline",
       last_changed: serverTimestamp(),
