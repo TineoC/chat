@@ -17,17 +17,15 @@ const useFetchChats = () => {
     }
   );
 
-  if (!value) return undefined;
+  if (loading) return undefined;
 
-  const chatSortedByDate = [];
+  const chats = Object.values(value);
 
-  Object.keys(value)
-    .sort((a, b) => {
-      return value[b].date.seconds - value[a].date.seconds;
-    })
-    .forEach((key) => (chatSortedByDate[key] = value[key]));
+  const sortedByDate = chats.sort((a, b) => {
+    return b.date?.toDate() - a.date?.toDate();
+  });
 
-  return chatSortedByDate;
+  return sortedByDate;
 };
 
 export default useFetchChats;
